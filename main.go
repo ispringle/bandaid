@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func get_metrics(url string) io.Reader {
+func getMetrics(url string) io.Reader {
 	timeout := time.Duration(60 * time.Second)
 	client := &http.Client{
 		Timeout: timeout,
@@ -23,7 +23,6 @@ func get_metrics(url string) io.Reader {
 	}
 
 	res, getErr := client.Do(req)
-	defer res.Body.Close()
 	if getErr != nil {
 		log.Fatal("client.Do error:", getErr)
 	}
@@ -48,11 +47,11 @@ func retriveAddr() string {
 
 func main() {
 	addr := retriveAddr()
-	rawMetrics := get_metrics(addr)
+	rawMetrics := getMetrics(addr)
 	parser := expfmt.TextParser{}
 	metrics, err := parser.TextToMetricFamilies(rawMetrics)
 	if err != nil {
 		log.Fatal("parser.TextToMetricFamilies error:", err)
 	}
-	fmt.Println(metrics)
+	fmt.Println(metrics["application_appointment_activity_error_counter"])
 }
