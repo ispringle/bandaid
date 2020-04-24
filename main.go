@@ -36,22 +36,23 @@ func getMetrics(url string) io.Reader {
 	return res.Body
 }
 
-func retriveAddr() string {
+func retriveAddr() (string, string) {
 	proto := flag.String("proto", "http", "specify protocol used for scrape")
 	host := flag.String("host", "localhost", "specify the host to scrape")
 	port := flag.String("port", "9100", "specify the port to scrape")
+	metric := flag.String("metric", "", "specify the metric to return")
 	flag.Parse()
 	addr := fmt.Sprintf("%s://%s:%s/metrics", *proto, *host, *port)
-	return addr
+	return addr, *metric
 }
 
 func main() {
-	addr := retriveAddr()
+	addr, metric := retriveAddr()
 	rawMetrics := getMetrics(addr)
 	parser := expfmt.TextParser{}
 	metrics, err := parser.TextToMetricFamilies(rawMetrics)
 	if err != nil {
 		log.Fatal("parser.TextToMetricFamilies error:", err)
 	}
-	fmt.Println(metrics["application_appointment_activity_error_counter"])
+	fmt.Println(metrics[metric])
 }
